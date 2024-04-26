@@ -9,6 +9,9 @@
 //Глобальные массивы
 int size = 10;
 int receiptSize = 1;
+double cash = 500000.0;
+double cashIncome = 0, cardIncome = 0, totalIncome = 0;
+
 int* idArr = new int[size];
 std::string* nameArr = new std::string[size];
 int* countArr = new int[size];
@@ -37,6 +40,7 @@ void AddToStorage();
 void AddElementToEnd();
 void DeleteElementByIndex();
 void ChangeStorage();
+void CashStatus();
 
 template <typename ArrType>
 void FillArr(ArrType staticArr, ArrType dinArr, int size);
@@ -181,6 +185,7 @@ void Shop()
 			std::cout << "4 - Списать товар\n";
 			std::cout << "5 - Пополнить товар\n";
 			std::cout << "6 - Изменение склада\n";
+			std::cout << "7 - Поаказать кассу\n";
 			std::cout << "0 - Закончить смену\n";
 			std::cin >> choose;
 
@@ -210,8 +215,13 @@ void Shop()
 		{
 			ChangeStorage();
 		}
+		else if (choose == 7)
+		{
+			CashStatus();
+		}
 		else if (choose == 0)
 		{
+			CashStatus();
 			break;
 		}
 		else
@@ -222,6 +232,7 @@ void Shop()
 }
 void Selling()
 {
+	double totalSum = 0;
 	int chooseId, chooseCount, confirm;
 	bool isFirst = true;
 	while (true)
@@ -235,7 +246,7 @@ void Selling()
 				std::cerr << "\nДанного товара нет\n";
 				continue;
 			}
-			if (countArr[chooseId - 1] >= 0) // ошибка? (>= 0)
+			if (countArr[chooseId - 1] > 0)
 			{
 				while (true)
 				{
@@ -273,6 +284,7 @@ void Selling()
 					countReceiptArr[receiptSize - 1] = chooseCount;
 					priceReceiptArr[receiptSize - 1] = priceArr[chooseId - 1] * chooseCount;
 					countArr[chooseId - 1] -= chooseCount;
+					totalSum += priceArr[chooseId - 1] * chooseCount;
 					isFirst = false;
 				}
 				else
@@ -297,13 +309,26 @@ void Selling()
 		} while (true);
 
 		PrintReceipt();
-		system("pause");
-		ShowStorage();
 
+		int pay = 0;
+		std::cout << "\n\n\n";
+		do
+		{
+			std::cout << "1 - Оплата наличными 2 - Оплата картой\n\n";
+			std::cin >> pay;
+		} while (pay > 2 || pay < 1);
+
+		if (pay == 1)
+		{
+			cash += totalSum;
+			cashIncome += totalSum;
+		}
+		else if (pay == 2)
+		{
+			cardIncome += totalSum;
+		}
+		break;
 	}
-
-
-
 }
 void AddElementToReceipt(int& receiptSize, int id, int count)
 {
@@ -426,7 +451,7 @@ void AddElementToEnd()
 	{
 		idArrTemp[i] = idArr[i];
 		nameArrTemp[i] = nameArr[i];
-		countArrTemp[i] = countReceiptArr[i];
+		countArrTemp[i] = countArr[i];
 		priceArrTemp[i] = priceArr[i];
 	}
 	delete[]idArr;
@@ -464,13 +489,13 @@ void DeleteElementByIndex()
 {
 	int* idArrTemp = new int[size];
 	std::string* nameArrTemp = new std::string[size];
-	int* CountArrTemp = new int[size];
+	int* countArrTemp = new int[size];
 	double* priceArrTemp = new double[size];
 	for (int i = 0; i < size; i++)
 	{
 		idArrTemp[i] = idArr[i];
 		nameArrTemp[i] = nameArr[i];
-		CountArrTemp[i] = countReceiptArr[i];
+		countArrTemp[i] = countReceiptArr[i];
 		priceArrTemp[i] = priceArr[i];
 	}
 	delete[]idArr;
@@ -490,11 +515,29 @@ void DeleteElementByIndex()
 		std::cin >> index;
 
 	} while (index < 1 || index > size);
-	for (int i = 0; i < size; i++)
+	for (int i = 0, j = 0; i < size, j < size; i++, j++)
 	{
-
-
+		if (index - 1 == i)
+		{
+			i++;
+			idArr[j] = idArrTemp[j];
+			nameArr[j] = nameArrTemp[i];
+			priceArr[j] = priceArrTemp[i];
+			countArr[j] = countArrTemp[i];
+		}
+		else
+		{
+			idArr[j] = idArrTemp[j];
+			nameArr[j] = nameArrTemp[i];
+			priceArr[j] = priceArrTemp[i];
+			countArr[j] = countArrTemp[i];
+		}
 	}
+
+	delete[]idArrTemp;
+	delete[]nameArrTemp;
+	delete[]priceArrTemp;
+	delete[]countArrTemp;
 }
 void ChangeStorage()
 {
@@ -505,7 +548,7 @@ void ChangeStorage()
 		std::cout << "2 - Убрать товар из склада\n";
 		std::cout << "0 - Выход\n";
 		std::cin >> choose;
-	} while (choose < 0 || choose < 2);
+	} while (choose < 0 || choose > 2);
 	if (choose == 1)
 	{
 		AddElementToEnd();
@@ -518,6 +561,15 @@ void ChangeStorage()
 	{
 		std::cout << "Выход";
 	}
+}
+void CashStatus()
+{
+	totalIncome = cashIncome + cardIncome;
+	std::cout << "Наличные в кассе: " 
+		<< cash << "\nВыручка за наличные: " 
+		<< cashIncome << "\nВыручка по безналу: " 
+		<< cardIncome << "\n\nИоговая выручка за смену: " 
+		<< totalIncome << "\n\n";
 }
 
 template<typename ArrType>
