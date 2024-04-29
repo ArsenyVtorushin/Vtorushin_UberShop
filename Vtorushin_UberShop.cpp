@@ -5,8 +5,15 @@
 
 // Iron Box. Продажа комплектующих для компьютеров
 
+//Скидки: 
+// 1 - При цене от 30 000 скидка 10% 
+// 2 - При покупке проц, гпу, озу, мат, ж.д. - корпус в подарок 
+// 3 - При покупке 2 мониторов веб кам в подарок
+
 
 //Глобальные массивы
+double totalSum = 0;
+int wasForDiscountTwo = 0, monitors = 0;
 int size = 10;
 int receiptSize = 1;
 double cash = 500000.0;
@@ -41,6 +48,9 @@ void AddElementToEnd();
 void DeleteElementByIndex();
 void ChangeStorage();
 void CashStatus();
+void DiscountOne(double& totalSum);
+void DiscountTwo(int& wasForDiscountTwo);
+void DiscountThree(int& monitors);
 
 template <typename ArrType>
 void FillArr(ArrType staticArr, ArrType dinArr, int size);
@@ -50,7 +60,6 @@ int main()
 {
 	setlocale(LC_ALL, "ru");
 	Start();
-	CreateStorage();
 	DeleteMainArrays();
 	DeleteReceiptArrays();
 	return 0;
@@ -84,7 +93,7 @@ void Start()
 			do
 			{
 				std::cerr << "\nНеверный логин или пароль\n";
-				std::cout << "Попробовать ещё раз?\n    1 - да\n    2 - выход из программы\n";
+				std::cout << "Попробовать ещё раз?\n    1 - да\n    2 - выход из программы\n\n[";
 				std::cin >> choose;
 				std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
@@ -101,7 +110,7 @@ void Start()
 			int chooseStorageType;
 			do
 			{
-				std::cout << "\nВведите формат склада: \n    1 - готовый склад\n    2 - создать склад вручную\n";
+				std::cout << "\nВведите формат склада: \n    1 - готовый склад\n    2 - создать склад вручную\n\n[";
 				std::cin >> chooseStorageType;
 			} while (chooseStorageType < 1 || chooseStorageType > 2);
 
@@ -114,11 +123,11 @@ void Start()
 			}
 			else if (chooseStorageType == 2)
 			{
-				std::cout << "В разработке\n";
+				std::cout << "\n  - В разработке -  :)\n";
 			}
 			else
 			{
-				std::cerr << "Ошибка";
+				std::cerr << "\n - Ошибка - \n\n";
 			}
 		}
 	} while (!exit);
@@ -157,20 +166,25 @@ void CreateStorage()
 }
 void ShowStorage()
 {
-	std::cout << std::left
-		<< std::setw(7) << "\n\nID"
+	std::cout << "\n *********************** С К Л А Д *************************\n *" 
+		<< std::right << std::setw(58) << "*";
+	std::cout << std::left << "\n *   "
+		<< std::setw(7) << "ID"
 		<< std::setw(25) << "Название"
 		<< std::setw(15) << "Количество"
-		<< std::setw(25) << "Цена" << "\n\n";
+		<< "Цена   *" << "\n *" << std::right << std::setw(59) << "*\n";
 
 	for (int i = 0; i < size; i++)
 	{
-		std::cout << std::left
-			<< std::setw(5) << idArr[i] + 1
+		std::cout << std::left << " *   "
+			<< std::setw(7) << idArr[i] + 1
 			<< std::setw(25) << nameArr[i]
 			<< std::setw(15) << countArr[i]
-			<< std::setw(25) << priceArr[i] << "\n";
+			<< std::setw(7) << priceArr[i] 
+			<< "*\n";
 	}
+	std::cout << " *" << std::right << std::setw(59) << "*\n"
+		<< " ***********************************************************\n";
 }
 void Shop()
 {
@@ -179,14 +193,17 @@ void Shop()
 		int choose;
 		do
 		{
-			std::cout << "\n1 - Показать склад\n";
-			std::cout << "2 - Начать продажу\n";
-			std::cout << "3 - Изменить цену\n";
-			std::cout << "4 - Списать товар\n";
-			std::cout << "5 - Пополнить товар\n";
-			std::cout << "6 - Изменение склада\n";
-			std::cout << "7 - Поаказать кассу\n";
-			std::cout << "0 - Закончить смену\n";
+			std::cout << "\n ----- ГЛАВНОЕ МЕНЮ -----\n";
+			std::cout << "|\t\t\t |\n";
+			std::cout << "|  1 - Показать склад    |\n";
+			std::cout << "|  2 - Начать продажу    |\n";
+			std::cout << "|  3 - Изменить цену     |\n";
+			std::cout << "|  4 - Списать товар     |\n";
+			std::cout << "|  5 - Пополнить товар   |\n";
+			std::cout << "|  6 - Изменение склада  |\n";
+			std::cout << "|  7 - Поаказать кассу   |\n";
+			std::cout << "|  0 - Закончить смену   |\n";
+			std::cout << "|________________________|\n\n[";
 			std::cin >> choose;
 
 		} while (choose > 6 || choose < 0);
@@ -226,54 +243,116 @@ void Shop()
 		}
 		else
 		{
-			std::cerr << "Error";
+			std::cerr << "\n\nError\n\n";
 		}
 	}
 }
 void Selling()
 {
-	double totalSum = 0;
 	int chooseId, chooseCount, confirm;
 	bool isFirst = true;
+	bool firstCpu = true, firstDrive = true, firstRam = true, firstMother = true, firstGpu = true;
+	bool wasTwoMonitors = false;
 	while (true)
 	{
 		do
 		{
-			std::cout << "\nВведите id товара: ";
+			std::cout << "\nВведите ID товара: ";
 			std::cin >> chooseId;
 			if (chooseId < 1 || chooseId > size)
 			{
-				std::cerr << "\nДанного товара нет\n";
+				std::cerr << "\n - Данного товара нет - \n";
 				continue;
 			}
 			if (countArr[chooseId - 1] > 0)
 			{
+				// Discounts
+				if (chooseId <= 5)
+				{
+					if (chooseId == 1 && firstDrive)
+					{
+						wasForDiscountTwo++;
+						firstDrive = false;
+					}
+					else if (chooseId == 2 && firstRam)
+					{
+						wasForDiscountTwo++;
+						firstRam = false;
+					}
+					else if (chooseId == 3 && firstMother)
+					{
+						wasForDiscountTwo++;
+						firstMother = false;
+					}
+					else if (chooseId == 4 && firstCpu)
+					{
+						wasForDiscountTwo++;
+						firstCpu = false;
+					}
+					else if (chooseId == 5 && firstGpu)
+					{
+						wasForDiscountTwo++;
+						firstGpu = false;
+					}
+				}
+
 				while (true)
 				{
-					std::cout << "\nВыбранный товар: " << nameArr[chooseId - 1] << "\n";
-					std::cout << "Кол-во данного товара на складе: " << countArr[chooseId - 1];
+					std::cout << "\n  ----------------------------------------------------\n" 
+						<< std::left << std::setw(33)
+						<< "/ Выбранный товар: " 
+						<< std::right << std::setw(20)
+						<< nameArr[chooseId - 1] << "  \\\n";
+
+					std::cout << std::left << std::setw(33)
+						<< "\\ Кол-во данного товара на складе: " 
+						<< std::right << std::setw(18)
+						<< countArr[chooseId - 1] 
+						<< "  /\n  ----------------------------------------------------";
+
 					std::cout << "\n\nВведите кол-во товара: ";
 					std::cin >> chooseCount;
+
 					if (chooseCount < 1 || chooseCount > countArr[chooseId - 1])
 					{
-						std::cerr << "\nError\n";
+						std::cerr << "\n - Ошибка - \n";
 					}
 					else
 					{
+						if (chooseId == 2)
+						{
+							monitors += chooseCount;
+						}
 						break;
 					}
-
 				}
-
 			}
 			else
 			{
-				std::cerr << "\nТовара на складе нет\n";
-				continue;
+				std::cerr << "\n - Эти товары закончились - \n";
+				std::cout << "\n|* 1 - Продолжить\n|* 2 - Выйти\n";
+				std::cin >> confirm;
+
+				if (confirm == 1)
+				{
+					continue;
+				}
+				else
+				{
+					std::cout << "\n - В разработке - \n";   // Доделать!!!
+					std::cout << " ";
+					continue;
+				}
 			}
 
-			std::cout << "\nТовар: " << nameArr[chooseId - 1] << "\nКол-во: " << chooseCount;
-			std::cout << "\n1 - Подтвердить\n2 - Отмена\n\n";
+			std::cout << "\n  ---------------------------" 
+				<< "\n/ Товар: " << std::setw(19)
+				<< std::right << nameArr[chooseId - 1] 
+				<< "  \\\n\\ Кол-во: " << std::setw(18) 
+				<< std::right << chooseCount 
+				<< "  /\n  ---------------------------";
+
+			std::cout << "\n\n|* 1 - Подтвердить\n|* 2 - Отмена\n\n[";
 			std::cin >> confirm;
 
 			if (confirm == 1)
@@ -290,6 +369,7 @@ void Selling()
 				else
 				{
 					AddElementToReceipt(receiptSize, chooseId, chooseCount);
+					totalSum += priceArr[chooseId - 1] * chooseCount;
 				}
 
 			}
@@ -298,8 +378,7 @@ void Selling()
 				continue;
 			}
 
-			std::cout << "\nКупить ещё один товар?\n\n";
-			std::cout << "1 - Да\n 2 - Закончить покупки\n";
+			std::cout << "\n|* 1 - Купить ещё один товар\n|* 2 - Закончить покупки\n\n[";
 			std::cin >> confirm;
 			if (confirm == 1)
 			{
@@ -314,7 +393,7 @@ void Selling()
 		std::cout << "\n\n\n";
 		do
 		{
-			std::cout << "1 - Оплата наличными 2 - Оплата картой\n\n";
+			std::cout << "|* 1 - Оплата наличными\n|* 2 - Оплата картой\n\n";
 			std::cin >> pay;
 		} while (pay > 2 || pay < 1);
 
@@ -367,14 +446,37 @@ void AddElementToReceipt(int& receiptSize, int id, int count)
 }
 void PrintReceipt()
 {
-	std::cout << "Название\t\t\tКол-во\tЦена\n";
+	if (totalIncome >= 30000)
+	{
+		std::cout << "\n\n  ! Подействовала скидка 10% !";
+		DiscountOne(totalSum);
+	}
+	if (wasForDiscountTwo == 4)
+	{
+		std::cout << "\n\n  ! Подействовала скидка на корпус в подарок !";
+	}
+	if (monitors >= 2)
+	{
+		std::cout << "\n\n  ! Подействовала скидка на веб-камеру в подарок !";
+	}
+	DiscountTwo(wasForDiscountTwo);
+	DiscountThree(monitors);
+
+	std::cout << "\n\n ------ Ч Е К ------";
+	std::cout << "\n\n" << std::left
+		<< std::setw(25) << "Название" 
+		<< std::setw(10) << "Кол-во" 
+		<< std::setw(10) << "Цена" << "\n\n";
+
 	for (int i = 0; i < receiptSize; i++)
 	{
-
-		std::cout << nameReceiptArr[i] << "\t\t" << countReceiptArr[i] << "\t" << priceReceiptArr[i] << "\n";
-	}
+		std::cout << std::left
+			<< std::setw(25) << nameReceiptArr[i] 
+			<< std::setw(10) << countReceiptArr[i] 
+			<< std::setw(10) << priceReceiptArr[i] << "\n";
+	}	
+	
 	std::cout << "\n";
-
 }
 void ChangePrice()
 {
@@ -400,25 +502,24 @@ void ChangePrice()
 }
 void RemoveFromStorage()
 {
+	int id;
+	int count;
+	do
 	{
-		int id;
-		int count;
-		do
-		{
-			std::cout << "Введите Id товара для списания: ";
-			std::cin >> id;
-		} while (id < 1 || id > idArr[size - 1]);
+		std::cout << "Введите ID товара для списания: ";
+		std::cin >> id;
+	} while (id < 1 || id > idArr[size - 1]);
 
-		std::cout << "\n\nВыбран товар: " << nameArr[id - 1] << "  -  " << countArr[id - 1] << " штук\n\n";
+	std::cout << "\n\nВыбран товар: " << nameArr[id - 1] << "  -  " << countArr[id - 1] << " штук\n\n";
 
-		do
-		{
-			std::cout << "\nВведите кол-во товара: ";
-			std::cin >> count;
-		} while (count < 0 || count  > countArr[id - 1]);
-		countArr[id - 1] -= countArr[id - 1];
-		std::cout << "\nТовар успешно списан";
-	}
+	do
+	{
+		std::cout << "\nВведите кол-во товара: ";
+		std::cin >> count;
+	} while (count < 0 || count  > countArr[id - 1]);
+	countArr[id - 1] -= count;
+	std::cout << "\nТовар успешно списан\n";
+	
 }
 void AddToStorage()
 {
@@ -568,8 +669,35 @@ void CashStatus()
 	std::cout << "Наличные в кассе: " 
 		<< cash << "\nВыручка за наличные: " 
 		<< cashIncome << "\nВыручка по безналу: " 
-		<< cardIncome << "\n\nИоговая выручка за смену: " 
+		<< cardIncome << "\n\nИтоговая выручка за смену: " 
 		<< totalIncome << "\n\n";
+}
+void DiscountOne(double& totalSum)
+{
+	if (totalSum >= 30000)
+	{
+		totalSum -= (totalSum / 100 * 10);
+	}
+}
+void DiscountTwo(int& wasForDiscountTwo)
+{
+	if (wasForDiscountTwo == 4)
+	{
+		std::cout << std::left
+			<< std::setw(25) << "Корпус"
+			<< std::setw(10) << "1"
+			<< std::setw(10) << "Бесплатно" << "\n";
+	}
+}
+void DiscountThree(int& monitors)
+{
+	if (monitors >= 2)
+	{
+		std::cout << std::left
+			<< std::setw(25) << "Веб-камера"
+			<< std::setw(10) << "1"
+			<< std::setw(10) << "Бесплатно" << "\n";
+	}
 }
 
 template<typename ArrType>
