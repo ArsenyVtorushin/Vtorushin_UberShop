@@ -11,7 +11,7 @@
 // 3 - При покупке 2 мониторов веб кам в подарок
 
 
-//Глобальные массивы
+//Глобальные переменные
 double totalSum = 0;
 int wasForDiscountTwo = 0, monitors = 0;
 int size = 10;
@@ -19,6 +19,7 @@ int receiptSize = 1;
 double cash = 500000.0;
 double cashIncome = 0, cardIncome = 0, totalIncome = 0;
 
+//Глобальные массивы
 int* idArr = new int[size];
 std::string* nameArr = new std::string[size];
 int* countArr = new int[size];
@@ -51,6 +52,7 @@ void CashStatus();
 void DiscountOne(double& totalSum);
 void DiscountTwo(int& wasForDiscountTwo);
 void DiscountThree(int& monitors);
+void FillStorage();
 
 template <typename ArrType>
 void FillArr(ArrType staticArr, ArrType dinArr, int size);
@@ -59,9 +61,10 @@ void FillArr(ArrType staticArr, ArrType dinArr, int size);
 int main()
 {
 	setlocale(LC_ALL, "ru");
-	Start();
+	/*Start();
 	DeleteMainArrays();
-	DeleteReceiptArrays();
+	DeleteReceiptArrays();*/
+	FillStorage();
 	return 0;
 }
 
@@ -123,7 +126,7 @@ void Start()
 			}
 			else if (chooseStorageType == 2)
 			{
-				std::cout << "\n  - В разработке -  :)\n";
+				FillStorage();
 			}
 			else
 			{
@@ -319,7 +322,7 @@ void Selling()
 					}
 					else
 					{
-						if (chooseId == 2)
+						if (chooseId == 9)
 						{
 							monitors += chooseCount;
 						}
@@ -446,23 +449,20 @@ void AddElementToReceipt(int& receiptSize, int id, int count)
 }
 void PrintReceipt()
 {
-	if (totalIncome >= 30000)
+	if (totalSum >= 60000)
 	{
-		std::cout << "\n\n  ! Подействовала скидка 10% !";
-		DiscountOne(totalSum);
+		std::cout << "\n            ! Подействовала скидка 10% !\n";
 	}
-	if (wasForDiscountTwo == 4)
+	if (wasForDiscountTwo == 5)
 	{
-		std::cout << "\n\n  ! Подействовала скидка на корпус в подарок !";
+		std::cout << "\n    ! Подействовала скидка на корпус в подарок !\n";
 	}
 	if (monitors >= 2)
 	{
-		std::cout << "\n\n  ! Подействовала скидка на веб-камеру в подарок !";
+		std::cout << "\n  ! Подействовала скидка на веб-камеру в подарок !\n\n";
 	}
-	DiscountTwo(wasForDiscountTwo);
-	DiscountThree(monitors);
 
-	std::cout << "\n\n ------ Ч Е К ------";
+	std::cout << "\n\n ----------------- Ч Е К -----------------";
 	std::cout << "\n\n" << std::left
 		<< std::setw(25) << "Название" 
 		<< std::setw(10) << "Кол-во" 
@@ -475,7 +475,13 @@ void PrintReceipt()
 			<< std::setw(10) << countReceiptArr[i] 
 			<< std::setw(10) << priceReceiptArr[i] << "\n";
 	}	
-	
+
+	DiscountOne(totalSum);
+	DiscountTwo(wasForDiscountTwo);
+	DiscountThree(monitors);
+
+	std::cout << "\nИТОГО:   " << totalSum << "\n\n";
+
 	std::cout << "\n";
 }
 void ChangePrice()
@@ -674,14 +680,14 @@ void CashStatus()
 }
 void DiscountOne(double& totalSum)
 {
-	if (totalSum >= 30000)
+	if (totalSum >= 60000)
 	{
 		totalSum -= (totalSum / 100 * 10);
 	}
 }
 void DiscountTwo(int& wasForDiscountTwo)
 {
-	if (wasForDiscountTwo == 4)
+	if (wasForDiscountTwo == 5)
 	{
 		std::cout << std::left
 			<< std::setw(25) << "Корпус"
@@ -696,8 +702,65 @@ void DiscountThree(int& monitors)
 		std::cout << std::left
 			<< std::setw(25) << "Веб-камера"
 			<< std::setw(10) << "1"
-			<< std::setw(10) << "Бесплатно" << "\n";
+			<< std::setw(15) << "Бесплатно" << "\n";
 	}
+}
+void FillStorage()
+{
+
+	std::cout << "\n\n ~ ЗАПОЛНИТЕ СКЛАД ~\n\n";
+	size = 1;
+
+	int* id = new int[size] {};
+	std::string* name = new std::string[size]{};
+	int* count = new int[size] {};
+	double* price = new double[size] {};
+
+	int chooseNext;
+	bool flag = false;
+
+	for (int i = 0; i < size; i++)
+	{
+		id[i] = i;
+		std::cout << "\nНазвание " << i + 1 << "-го товара: ";
+		std::cin >> name[i];
+		std::cout << "\nКол-во: ";
+		std::cin >> count[i];
+		std::cout << "\nЦена: ";
+		std::cin >> price[i];
+
+		do
+		{
+			std::cout << "\n\n|* 1 - Дальше\n|* 2 - Всё\n\n[";
+			std::cin >> chooseNext;
+
+			if (chooseNext == 1)
+			{
+				size++;
+			}
+			else if (chooseNext == 2)
+			{
+				flag = true;
+				break;
+			}
+			else
+			{
+				std::cerr << "\n\n - Ошибка - \n\n";
+			}
+		} while (chooseNext > 2 || chooseNext < 1);
+
+		if (flag)
+		{
+			break;
+		}
+	}
+
+
+
+	delete[]id;
+	delete[]name;
+	delete[]count;
+	delete[]price;
 }
 
 template<typename ArrType>
