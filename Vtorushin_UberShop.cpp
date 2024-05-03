@@ -2,6 +2,10 @@
 #include <string>
 #include <limits>
 #include <iomanip>
+#include <Windows.h>
+#ifdef max
+#undef max
+#endif
 
 // Iron Box. Продажа комплектующих для компьютеров
 
@@ -60,11 +64,12 @@ void FillArr(ArrType staticArr, ArrType dinArr, int size);
 
 int main()
 {
-	setlocale(LC_ALL, "ru");
-	/*Start();
+	SetConsoleCP(1251);
+	SetConsoleOutputCP(1251);
+
+	Start();
 	DeleteMainArrays();
-	DeleteReceiptArrays();*/
-	FillStorage();
+	DeleteReceiptArrays();
 	return 0;
 }
 
@@ -81,7 +86,7 @@ void Start()
 	std::string adminLogin = "admin";
 	std::string adminPassword = "admin";
 	std::string login, password;
-	int choose;
+	char choose;
 	bool exit = false;
 
 	do
@@ -104,7 +109,7 @@ void Start()
 				{
 					exit = true;
 				}
-			} while (choose < 1 || choose > 2);
+			} while (choose != 1 || choose != 2);
 		}
 
 		else
@@ -127,6 +132,7 @@ void Start()
 			else if (chooseStorageType == 2)
 			{
 				FillStorage();
+				Shop();
 			}
 			else
 			{
@@ -209,7 +215,7 @@ void Shop()
 			std::cout << "|________________________|\n\n[";
 			std::cin >> choose;
 
-		} while (choose > 6 || choose < 0);
+		} while (choose > 7 || choose < 0);
 
 		if (choose == 1)
 		{
@@ -707,27 +713,63 @@ void DiscountThree(int& monitors)
 }
 void FillStorage()
 {
+	std::cout << "\n\n ~ ЗАПОЛНИТЕ СКЛАД ~\n";
+	size = 0;
 
-	std::cout << "\n\n ~ ЗАПОЛНИТЕ СКЛАД ~\n\n";
-	size = 1;
-
-	int* id = new int[size] {};
-	std::string* name = new std::string[size]{};
-	int* count = new int[size] {};
-	double* price = new double[size] {};
+	int* idOwn = new int[size] {};
+	std::string* nameOwn = new std::string[size]{};
+	int* countOwn = new int[size] {};
+	double* priceOwn = new double[size] {};
 
 	int chooseNext;
 	bool flag = false;
 
-	for (int i = 0; i < size; i++)
+	for (int i = 0; i < size + 1; i++)
 	{
-		id[i] = i;
+		int* idArrTemp = new int[size];
+		std::string* nameArrTemp = new std::string[size];
+		int* countArrTemp = new int[size];
+		double* priceArrTemp = new double[size];
+		for (int i = 0; i < size; i++)
+		{
+			idArrTemp[i] = idOwn[i];
+			nameArrTemp[i] = nameOwn[i];
+			countArrTemp[i] = countOwn[i];
+			priceArrTemp[i] = priceOwn[i];
+		}
+		delete[]idOwn;
+		delete[]nameOwn;
+		delete[]countOwn;
+		delete[]priceOwn;
+		size++;
+
+		idOwn = new int[size];
+		nameOwn = new std::string[size];
+		countOwn = new int[size];
+		priceOwn = new double[size];
+
+		for (int i = 0; i < size - 1; i++)
+		{
+			idOwn[i] = idArrTemp[i];
+			nameOwn[i] = nameArrTemp[i];
+			countOwn[i] = countArrTemp[i];
+			priceOwn[i] = priceArrTemp[i];
+		}
+		
+		delete[]idArrTemp;
+		delete[]nameArrTemp;
+		delete[]countArrTemp;
+		delete[]priceArrTemp;
+
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+		idOwn[i] = i;
 		std::cout << "\nНазвание " << i + 1 << "-го товара: ";
-		std::cin >> name[i];
+		std::getline(std::cin, nameOwn[i], '\n');
 		std::cout << "\nКол-во: ";
-		std::cin >> count[i];
+		std::cin >> countOwn[i];
 		std::cout << "\nЦена: ";
-		std::cin >> price[i];
+		std::cin >> priceOwn[i];
 
 		do
 		{
@@ -736,7 +778,7 @@ void FillStorage()
 
 			if (chooseNext == 1)
 			{
-				size++;
+				continue;
 			}
 			else if (chooseNext == 2)
 			{
@@ -755,12 +797,15 @@ void FillStorage()
 		}
 	}
 
+	FillArr(idOwn, idArr, size);
+	FillArr(nameOwn, nameArr, size);
+	FillArr(priceOwn, priceArr, size);
+	FillArr(countOwn, countArr, size);
 
-
-	delete[]id;
-	delete[]name;
-	delete[]count;
-	delete[]price;
+	delete[]idOwn;
+	delete[]nameOwn;
+	delete[]countOwn;
+	delete[]priceOwn;
 }
 
 template<typename ArrType>
